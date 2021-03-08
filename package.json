@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "",
   "bin": {
-    "ftintl": "./bin/index.js"
+    "ftintl": "./dist/src/index.js"
   },
-  "main": "./bin/index.js",
+  "main": "./dist/src/index.js",
   "scripts": {
     "dev": "tsc --watch",
     "prepublish": "tsc",
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/xiaotangdou/fast-intl-cli#readme",
   "dependencies": {
+    "@types/inquirer": "^7.3.1",
     "@types/node": "^14.14.25",
     "commander": "^7.0.0",
     "inquirer": "^7.3.3",
