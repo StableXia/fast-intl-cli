@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import commander from "commander";
+import inquirer from "inquirer";
 import packageJson from "../package.json";
-import { canInitiate, initProject } from "./init";
-import { spining, log } from "./view";
+import { initCLI } from "./init";
 
 commander
   .version(packageJson.version, "-v, --version")
@@ -12,16 +12,26 @@ commander
 
 commander
   .command("init")
+  .option("-y", "使用默认配置")
   .description("初始化项目")
-  .action(async () => {
-    if (canInitiate()) {
-      spining("项目初始化", () => {
-        initProject();
-      });
+  .action((args) => {
+    if (args.y) {
+      initCLI();
       return;
     }
 
-    log.error("初始化失败，ftintl相关吧配置已存在");
+    inquirer
+      .prompt({
+        type: "confirm",
+        name: "confirm",
+        default: false,
+        message: "是否初始化CLI相关配置？",
+      })
+      .then((res) => {
+        if (res.confirm) {
+          initCLI();
+        }
+      });
   });
 
 commander.parse(process.argv);

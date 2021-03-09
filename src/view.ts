@@ -1,4 +1,5 @@
 import ora from "ora";
+import prettier from "prettier";
 
 /**
  * 进度条加载
@@ -18,3 +19,16 @@ class Log {
 }
 
 export const log = new Log();
+
+/**
+ * 使用 Prettier 格式化文件
+ * @param fileContent
+ */
+export function prettierFile(fileContent: string, options?: prettier.Options) {
+  try {
+    return prettier.format(fileContent, options);
+  } catch (e) {
+    log.error(`代码格式化报错！${e.toString()}\n代码为：${fileContent}`);
+    return fileContent;
+  }
+}
