@@ -45,6 +45,4 @@ export function initCLI() {
   log.error("初始化失败，ftintl相关吧配置已存在");
 }
 
-export function initProject() {
-  initCLI();
-}
+export function initLangs() {}

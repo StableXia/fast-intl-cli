@@ -7,6 +7,10 @@ export const DEFAULT_LANG_DIR = "./.fastIntl/";
 
 // CLI 配置文件
 export const DEFAULT_CLI_CONFIG_FILE = {
+  // 多语言目录
   langDir: DEFAULT_LANG_DIR,
+  // 中文路径
   ZHHans: `${DEFAULT_LANG_DIR}${DEFAULT_ZHHANS}.json`,
+  // 可选语言
+  langs: [DEFAULT_ZHHANS],
 };
