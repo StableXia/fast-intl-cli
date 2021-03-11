@@ -23,10 +23,12 @@
   },
   "homepage": "https://github.com/xiaotangdou/fast-intl-cli#readme",
   "dependencies": {
+    "@types/d3-dsv": "^2.0.1",
     "@types/inquirer": "^7.3.1",
     "@types/node": "^14.14.25",
     "@types/prettier": "^2.2.2",
     "commander": "^7.0.0",
+    "d3-dsv": "^2.0.0",
     "inquirer": "^7.3.3",
     "ora": "^5.3.0"
   },

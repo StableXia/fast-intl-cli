@@ -4,6 +4,8 @@ import commander from "commander";
 import inquirer from "inquirer";
 import packageJson from "../package.json";
 import { initCLI, initLangs } from "./init";
+import { exportUntranslatedMessages, exportUnusedMessages } from "./exports";
+import { spining } from "./view";
 
 commander
   .version(packageJson.version, "-v, --version")
@@ -31,6 +33,26 @@ commander
     if (res.confirm) {
       initCLI();
     }
+  });
+
+commander
+  .command("untranslated")
+  .description("导出未翻译的文案")
+  .action((args) => {
+    console.log("args", args);
+    spining("导出未翻译的文案", () => {
+      exportUntranslatedMessages();
+    });
+  });
+
+commander
+  .command("unused")
+  .description("导出未使用文案")
+  .action((args) => {
+    console.log("args", args);
+    spining("导出未使用文案", () => {
+      exportUnusedMessages();
+    });
   });
 
 commander.parseAsync(process.argv);
