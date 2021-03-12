@@ -22,8 +22,8 @@ class Log {
     console.log(chalk.yellow(msg));
   }
 
-  primary(msg: string) {
-    console.log(msg);
+  primary(...msg: string[]) {
+    console.log(...msg);
   }
 
   get chalk() {

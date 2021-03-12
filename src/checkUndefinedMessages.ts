@@ -74,6 +74,7 @@ export function checkUndefinedMessages(filePath: string) {
   recursiveFile(filePath);
 
   log.primary(log.chalk.red("找到未定义但使用的 I18N 声明如下："));
+  let undefI18N = 0;
   Object.keys(I18NExpression).forEach((key, i) => {
     I18NExpression[key].forEach((node) => {
       const {
@@ -81,7 +82,10 @@ export function checkUndefinedMessages(filePath: string) {
         character,
       } = node.getSourceFile().getLineAndCharacterOfPosition(node.getStart());
 
-      console.log(`${key}:${line + 1}:${character}`, node.getText());
+      log.primary(
+        log.chalk.red(`未定义：[${node.getText()}]`),
+        log.chalk.blue(`${key}:${line + 1}:${character}`)
+      );
     });
   });
 }
