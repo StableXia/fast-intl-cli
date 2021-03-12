@@ -6,6 +6,7 @@ import packageJson from "../package.json";
 import { initCLI, initLangs } from "./init";
 import { exportUntranslatedMessages, exportUnusedMessages } from "./exports";
 import { spining } from "./view";
+import { checkUndefinedMessages } from "./checkUndefinedMessages";
 
 commander
   .version(packageJson.version, "-v, --version")
@@ -53,6 +54,13 @@ commander
     spining("导出未使用文案", () => {
       exportUnusedMessages();
     });
+  });
+
+commander
+  .command("undefined")
+  .description("校验未定义的文案")
+  .action((args) => {
+    checkUndefinedMessages("./src");
   });
 
 commander.parseAsync(process.argv);

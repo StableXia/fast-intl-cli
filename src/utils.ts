@@ -5,7 +5,7 @@ import path from "path";
  * 判断是文件夹
  * @param filePath
  */
-function isDirectory(filePath: string) {
+export function isDirectory(filePath: string) {
   if (fs.existsSync(filePath)) {
     return fs.statSync(filePath).isDirectory();
   }
@@ -15,7 +15,7 @@ function isDirectory(filePath: string) {
  * 判断是否是文件
  * @param filePath
  */
-function isFile(filePath: string) {
+export function isFile(filePath: string) {
   if (fs.existsSync(filePath)) {
     return fs.statSync(filePath).isFile();
   }
@@ -72,8 +72,8 @@ export function traverse(
  * 检查文件
  */
 function check(filePath: string, text: string, callback: () => void) {
-  var data = readFile(filePath);
-  var exc = new RegExp(`I18N.get\\(['"]${text}['"]\\)`);
+  const data = readFile(filePath);
+  const exc = new RegExp(`I18N.get\\(['"]${text}['"][\\),]`);
   if (exc.test(data as string)) {
     callback();
   }
@@ -83,7 +83,7 @@ function check(filePath: string, text: string, callback: () => void) {
  * 读取文件
  * @param fileName
  */
-function readFile(fileName: string) {
+export function readFile(fileName: string) {
   if (fs.existsSync(fileName)) {
     return fs.readFileSync(fileName, "utf-8");
   }
@@ -105,7 +105,7 @@ export function recursiveReadFile(fileName: string, text: string) {
   }
 
   if (isDirectory(fileName)) {
-    var files = fs.readdirSync(fileName).filter((file) => {
+    const files = fs.readdirSync(fileName).filter((file) => {
       return (
         !file.startsWith(".") &&
         !["node_modules", "build", "dist"].includes(file)
@@ -113,7 +113,7 @@ export function recursiveReadFile(fileName: string, text: string) {
     });
 
     files.forEach(function (val, key) {
-      var temp = path.join(fileName, val);
+      const temp = path.join(fileName, val);
       if (isDirectory(temp) && !hasText) {
         hasText = recursiveReadFile(temp, text);
       }

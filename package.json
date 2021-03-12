@@ -27,6 +27,7 @@
     "@types/inquirer": "^7.3.1",
     "@types/node": "^14.14.25",
     "@types/prettier": "^2.2.2",
+    "chalk": "^4.1.0",
     "commander": "^7.0.0",
     "d3-dsv": "^2.0.0",
     "inquirer": "^7.3.3",

@@ -1,5 +1,6 @@
 import ora from "ora";
 import prettier from "prettier";
+import chalk from "chalk";
 
 /**
  * 进度条加载
@@ -14,7 +15,19 @@ export function spining(msg: string, callback: () => void) {
 
 class Log {
   error(msg: string) {
+    console.log(chalk.red(msg));
+  }
+
+  warn(msg: string) {
+    console.log(chalk.yellow(msg));
+  }
+
+  primary(msg: string) {
     console.log(msg);
+  }
+
+  get chalk() {
+    return chalk;
   }
 }
 
