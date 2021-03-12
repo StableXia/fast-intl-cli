@@ -58,9 +58,12 @@ commander
 
 commander
   .command("undefined")
+  .requiredOption("-f, --file <filePath>", "必须指定扫描的文件或文件夹")
   .description("校验未定义的文案")
   .action((args) => {
-    checkUndefinedMessages("./src");
+    spining("未定义文案校验", () => {
+      checkUndefinedMessages(args.file);
+    });
   });
 
 commander.parseAsync(process.argv);
