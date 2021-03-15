@@ -11,7 +11,7 @@ function getLangPath(lang: string) {
   return path.resolve(config.langDir, `${lang}.json`);
 }
 
-function getLangMessages(
+export function getLangMessages(
   lang: string,
   filter = (message: string, key: string) => true
 ) {
