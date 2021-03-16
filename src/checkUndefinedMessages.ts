@@ -1,9 +1,8 @@
 import ts from "typescript";
 import fs from "fs";
 import path from "path";
-import { readFile } from "./utils";
+import { readFile, getLangMessages } from "./utils";
 import { log } from "./view";
-import { getLangMessages } from "./exports";
 import { findI18NExpressionInFile } from "./ast";
 import { readFileSync, patternToFunction } from "./readDir";
 import { getCLIConfigJson } from "./config";

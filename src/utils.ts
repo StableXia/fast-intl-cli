@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { getCLIConfigJson } from "./config";
 
 /**
  * 判断是文件夹
@@ -68,13 +69,14 @@ export function traverse(
   traverseInner(obj, cb, []);
 }
 
-/**
- * 检查文件
- */
-function check(filePath: string, text: string, callback: () => void) {
-  const data = readFile(filePath);
+function checkI18NExpression(
+  filePath: string,
+  text: string,
+  callback: () => void
+) {
+  const code = readFile(filePath);
   const exc = new RegExp(`I18N.get\\(['"]${text}['"][\\),]`);
-  if (exc.test(data as string)) {
+  if (exc.test(code as string)) {
     callback();
   }
 }
@@ -99,7 +101,7 @@ export function recursiveReadFile(fileName: string, text: string) {
   }
 
   if (isFile(fileName) && !hasText) {
-    check(fileName, text, () => {
+    checkI18NExpression(fileName, text, () => {
       hasText = true;
     });
   }
@@ -118,7 +120,7 @@ export function recursiveReadFile(fileName: string, text: string) {
         hasText = recursiveReadFile(temp, text);
       }
       if (isFile(temp) && !hasText) {
-        check(temp, text, () => {
+        checkI18NExpression(temp, text, () => {
           hasText = true;
         });
       }
@@ -126,4 +128,29 @@ export function recursiveReadFile(fileName: string, text: string) {
   }
 
   return hasText;
+}
+
+export function getLangPath(lang: string) {
+  const config = getCLIConfigJson();
+
+  return path.resolve(config.langDir, `${lang}.json`);
+}
+
+export function getLangMessages(
+  lang: string,
+  filter = (message: string, key: string) => true
+) {
+  const langPath = getLangPath(lang);
+
+  const messages = require(langPath);
+  const flattenedMessages: { [key: string]: string } = {};
+
+  traverse(messages, (message, path) => {
+    const key = path;
+    if (filter(message, key)) {
+      flattenedMessages[key] = message;
+    }
+  });
+
+  return flattenedMessages;
 }

@@ -1,34 +1,13 @@
-import path from "path";
 import fs from "fs";
 import { tsvFormatRows } from "d3-dsv";
 import { getCLIConfigJson } from "./config";
-import { traverse, recursiveReadFile } from "./utils";
+import {
+  traverse,
+  recursiveReadFile,
+  getLangMessages,
+  getLangPath,
+} from "./utils";
 import { CHINESE_CHAR_REGEXP } from "./regexp";
-
-function getLangPath(lang: string) {
-  const config = getCLIConfigJson();
-
-  return path.resolve(config.langDir, `${lang}.json`);
-}
-
-export function getLangMessages(
-  lang: string,
-  filter = (message: string, key: string) => true
-) {
-  const langPath = getLangPath(lang);
-
-  const messages = require(langPath);
-  const flattenedMessages: { [key: string]: string } = {};
-
-  traverse(messages, (message, path) => {
-    const key = path;
-    if (filter(message, key)) {
-      flattenedMessages[key] = message;
-    }
-  });
-
-  return flattenedMessages;
-}
 
 /**
  * 导出未翻译文案
@@ -70,7 +49,7 @@ export function exportUntranslatedMessages() {
 /**
  * 导出未使用的文案
  */
-export function exportUnusedMessages() {
+export function exportUnusedMessages(filePath: string) {
   const langPath = getLangPath("zh-hans");
   const messages = require(langPath);
   const unUnsedKeys: string[] = [];

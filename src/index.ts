@@ -5,7 +5,6 @@ import inquirer from "inquirer";
 import packageJson from "../package.json";
 import { initCLI, initLangs } from "./init";
 import { exportUntranslatedMessages, exportUnusedMessages } from "./exports";
-import { spining } from "./view";
 import { checkUndefinedMessages } from "./checkUndefinedMessages";
 
 commander
@@ -41,9 +40,7 @@ commander
   .description("导出未翻译的文案")
   .action((args) => {
     console.log("args", args);
-    spining("导出未翻译的文案", () => {
-      exportUntranslatedMessages();
-    });
+    exportUntranslatedMessages();
   });
 
 commander
@@ -51,9 +48,7 @@ commander
   .description("导出未使用文案")
   .action((args) => {
     console.log("args", args);
-    spining("导出未使用文案", () => {
-      exportUnusedMessages();
-    });
+    exportUnusedMessages();
   });
 
 commander
