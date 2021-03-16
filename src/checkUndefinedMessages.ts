@@ -1,10 +1,11 @@
 import ts from "typescript";
 import fs from "fs";
+import path from "path";
 import { readFile } from "./utils";
 import { log } from "./view";
 import { getLangMessages } from "./exports";
 import { findI18NExpressionInFile } from "./ast";
-import { readdirSync } from "./readDir";
+import { readFileSync, patternToFunction } from "./readDir";
 import { getCLIConfigJson } from "./config";
 
 function findI18NExpression(filePath: string) {
@@ -113,20 +114,28 @@ export function checkUndefinedMessages(filePath: string, lang?: string) {
   } = {};
   const langs = lang ? [lang] : config.langs;
 
-  const files = readdirSync(filePath);
+  const files = readFileSync(filePath, (file, stats) => {
+    const basename = path.basename(file);
 
-  files
-    .filter(
-      (file) =>
-        !file.startsWith(".") &&
-        !["node_modules", "build", "dist"].includes(file)
-    )
-    .forEach((file) => {
-      const I18NExpression = findI18NExpression(file);
-      if (I18NExpression.length > 0) {
-        allI18NExpression[file] = I18NExpression;
-      }
-    });
+    if (stats.isFile()) {
+      const check = patternToFunction(config.ignoreFile, () => false);
+      return !check(basename, stats);
+    }
+
+    if (stats.isDirectory()) {
+      const check = patternToFunction(config.ignoreDir, () => false);
+      return !check(basename, stats);
+    }
+
+    return false;
+  });
+
+  files.forEach((file) => {
+    const I18NExpression = findI18NExpression(file);
+    if (I18NExpression.length > 0) {
+      allI18NExpression[file] = I18NExpression;
+    }
+  });
 
   langs.forEach((lang) => {
     const messages = getLangMessages(lang);

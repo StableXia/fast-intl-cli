@@ -13,4 +13,14 @@ export const DEFAULT_CLI_CONFIG_FILE = {
   ZHHans: `${DEFAULT_LANG_DIR}${DEFAULT_ZHHANS}.json`,
   // 可选语言
   langs: [DEFAULT_ZHHANS],
+  // 忽略的文件
+  ignoreFile: (basename: string) => false,
+  // 忽略的文件夹
+  ignoreDir: (basename: string) => false,
 };
+
+// .filter(
+//   (file) =>
+//     !file.startsWith(".") &&
+//     !["node_modules", "build", "dist"].includes(file)
+// )
