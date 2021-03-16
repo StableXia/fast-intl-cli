@@ -5,6 +5,10 @@ export const DEFAULT_ZHHANS = "zh-hans";
 // 资源文件目录
 export const DEFAULT_LANG_DIR = "./.fastIntl/";
 
+export const DEFAULT_IGNORE_DIR = [];
+
+export const DEFAULT_IGNORE_FILE = [];
+
 // CLI 配置文件
 export const DEFAULT_CLI_CONFIG_FILE = {
   // 多语言目录
@@ -14,13 +18,8 @@ export const DEFAULT_CLI_CONFIG_FILE = {
   // 可选语言
   langs: [DEFAULT_ZHHANS],
   // 忽略的文件
-  ignoreFile: (basename: string) => false,
+  ignoreFile: (basename: string) => basename.startsWith("."),
   // 忽略的文件夹
-  ignoreDir: (basename: string) => false,
+  ignoreDir: (basename: string) =>
+    ["node_modules", "build", "dist"].includes(basename),
 };
-
-// .filter(
-//   (file) =>
-//     !file.startsWith(".") &&
-//     !["node_modules", "build", "dist"].includes(file)
-// )
