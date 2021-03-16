@@ -9,6 +9,7 @@ import {
 } from "./utils";
 import { CHINESE_CHAR_REGEXP } from "./regexp";
 import { log } from "./view";
+import path from "path";
 
 function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
   let total = Object.values(unUnsedMessages).reduce(
@@ -36,40 +37,55 @@ function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
   });
 }
 
+function findUntranslatedMessages(lang: string) {
+  const allMessages = getLangMessages(lang);
+  const existingTranslations = getLangMessages(
+    lang,
+    (message, key) =>
+      !CHINESE_CHAR_REGEXP.test(allMessages[key]) ||
+      allMessages[key] !== message
+  );
+
+  const messagesToTranslate = Object.keys(allMessages)
+    .filter((key) => !existingTranslations.hasOwnProperty(key))
+    .map((key) => {
+      let message = allMessages[key];
+      message = JSON.stringify(message).slice(1, -1);
+      return [key, message];
+    });
+
+  return messagesToTranslate;
+}
+
 /**
  * 导出未翻译文案
  */
-export function exportUntranslatedMessages() {
+export function exportUntranslatedMessages(exportDir?: string, lang?: string) {
   const config = getCLIConfigJson();
-
-  const langs = config.langs;
+  const langs = lang ? [lang] : config.langs;
 
   langs.forEach((lang) => {
-    const allMessages = getLangMessages(lang);
-    const existingTranslations = getLangMessages(
-      lang,
-      (message, key) =>
-        !CHINESE_CHAR_REGEXP.test(allMessages[key]) ||
-        allMessages[key] !== message
-    );
-
-    const messagesToTranslate = Object.keys(allMessages)
-      .filter((key) => !existingTranslations.hasOwnProperty(key))
-      .map((key) => {
-        let message = allMessages[key];
-        message = JSON.stringify(message).slice(1, -1);
-        return [key, message];
-      });
+    const messagesToTranslate = findUntranslatedMessages(lang);
 
     if (messagesToTranslate.length === 0) {
-      console.log("未找到未翻译的文案");
+      log.primary(log.chalk.green(`在[${lang}]中未找到未翻译的文案`));
       return;
     }
 
+    log.primary();
+    log.primary(
+      log.chalk.bgRed.white(
+        `在【${lang}】中找到【${messagesToTranslate.length}】处未翻译的文案：`
+      )
+    );
+    log.primary();
     const content = tsvFormatRows(messagesToTranslate);
-    const sourceFile = `./export-${lang}`;
-    fs.writeFileSync(sourceFile, content);
-    console.log(`导出 ${messagesToTranslate.length} 文案`);
+    const dir = exportDir || "./export-lang";
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    fs.writeFileSync(path.join(dir, lang), content);
+    log.primary(log.chalk.green(`在[${lang}]中的未翻译文案导出成功`));
   });
 }
 
