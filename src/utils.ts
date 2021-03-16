@@ -48,7 +48,7 @@ export function getFileToJson(filePath: string) {
  * 深度优先遍历对象中的所有 string 属性，即文案
  */
 export function traverse(
-  obj: { [key: string]: string },
+  obj: { [key: string]: any },
   cb: (message: string, path: string) => void
 ) {
   function traverseInner(
@@ -81,20 +81,13 @@ function checkI18NExpression(
   }
 }
 
-/**
- * 读取文件
- * @param fileName
- */
 export function readFile(fileName: string) {
   if (fs.existsSync(fileName)) {
     return fs.readFileSync(fileName, "utf-8");
   }
 }
 
-/**
- * 递归查找文件
- */
-export function recursiveReadFile(fileName: string, text: string) {
+export function recursiveCheckI18NExpression(fileName: string, text: string) {
   let hasText = false;
   if (!fs.existsSync(fileName)) {
     return false;
@@ -117,7 +110,7 @@ export function recursiveReadFile(fileName: string, text: string) {
     files.forEach(function (val, key) {
       const temp = path.join(fileName, val);
       if (isDirectory(temp) && !hasText) {
-        hasText = recursiveReadFile(temp, text);
+        hasText = recursiveCheckI18NExpression(temp, text);
       }
       if (isFile(temp) && !hasText) {
         checkI18NExpression(temp, text, () => {

@@ -45,10 +45,11 @@ commander
 
 commander
   .command("unused")
+  .requiredOption("-f, --file <filePath>", "必须指定扫描的文件或文件夹")
+  .option("-l, --lang <lang>", "要检查的语言")
   .description("导出未使用文案")
   .action((args) => {
-    console.log("args", args);
-    exportUnusedMessages();
+    exportUnusedMessages(args.file, args.lang);
   });
 
 commander

@@ -3,11 +3,38 @@ import { tsvFormatRows } from "d3-dsv";
 import { getCLIConfigJson } from "./config";
 import {
   traverse,
-  recursiveReadFile,
+  recursiveCheckI18NExpression,
   getLangMessages,
   getLangPath,
 } from "./utils";
 import { CHINESE_CHAR_REGEXP } from "./regexp";
+import { log } from "./view";
+
+function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
+  let total = Object.values(unUnsedMessages).reduce(
+    (prev, next) => prev + next.length,
+    0
+  );
+
+  if (total === 0) {
+    log.primary(log.chalk.green("未找到未使用的文案"));
+    return;
+  }
+
+  Object.keys(unUnsedMessages).forEach((key) => {
+    const unUsedKeys = unUnsedMessages[key];
+    if (unUsedKeys.length > 0) {
+      log.primary();
+      log.primary(
+        log.chalk.bgRed.white(
+          `在【${key}】中找到【${unUsedKeys.length}】处未使用的文案如下：`
+        )
+      );
+      log.primary();
+      log.primary(log.chalk.blue(`[ ${unUsedKeys.join(" , ")} ]`));
+    }
+  });
+}
 
 /**
  * 导出未翻译文案
@@ -46,21 +73,42 @@ export function exportUntranslatedMessages() {
   });
 }
 
-/**
- * 导出未使用的文案
- */
-export function exportUnusedMessages(filePath: string) {
-  const langPath = getLangPath("zh-hans");
-  const messages = require(langPath);
+function findUnusedMessages(
+  filePath: string,
+  messages: { [key: string]: any }
+) {
   const unUnsedKeys: string[] = [];
 
   traverse(messages, (text, path) => {
-    const hasKey = recursiveReadFile("./src", path);
+    const hasKey = recursiveCheckI18NExpression(filePath, path);
 
     if (!hasKey) {
       unUnsedKeys.push(`I18N.get("${path}")`);
     }
   });
 
-  console.log(unUnsedKeys);
+  return unUnsedKeys;
+}
+
+/**
+ * 导出未使用的文案
+ */
+export function exportUnusedMessages(filePath: string, lang: string) {
+  if (!fs.existsSync(filePath)) {
+    log.primary(log.chalk.red(`指定文件或目录不存在：【${filePath}】`));
+    return;
+  }
+
+  const unUnsedMessages: { [key: string]: string[] } = {};
+  const config = getCLIConfigJson();
+  const langs = lang ? [lang] : config.langs;
+
+  langs.forEach((lang) => {
+    const langPath = getLangPath(lang);
+    const messages = require(langPath);
+    const unUnsedKeys = findUnusedMessages(filePath, messages);
+    unUnsedMessages[lang] = unUnsedKeys;
+  });
+
+  logUnusedMessages(unUnsedMessages);
 }
