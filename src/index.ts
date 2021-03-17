@@ -6,6 +6,7 @@ import packageJson from "../package.json";
 import { initCLI, initLangs } from "./init";
 import { exportUntranslatedMessages, exportUnusedMessages } from "./exports";
 import { checkUndefinedMessages } from "./checkUndefinedMessages";
+import { spining } from "./view";
 
 commander
   .version(packageJson.version, "-v, --version")
@@ -41,16 +42,20 @@ commander
   .option("--lang <lang>", "要检查的语言")
   .description("导出未翻译的文案")
   .action((options) => {
-    exportUntranslatedMessages(options.export, options.lang);
+    spining("导出未翻译的文案", () => {
+      exportUntranslatedMessages(options.export, options.lang);
+    });
   });
 
 commander
   .command("unused")
   .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
   .option("--lang <lang>", "要检查的语言")
-  .description("导出未使用文案")
+  .description("校验未使用文案")
   .action((options) => {
-    exportUnusedMessages(options.file, options.lang);
+    spining("校验未使用文案", () => {
+      exportUnusedMessages(options.file, options.lang);
+    });
   });
 
 commander
@@ -59,7 +64,9 @@ commander
   .option("--lang <lang>", "要检查的语言")
   .description("校验未定义的文案")
   .action((options) => {
-    checkUndefinedMessages(options.file, options.lang);
+    spining("校验未定义的文案", () => {
+      checkUndefinedMessages(options.file, options.lang);
+    });
   });
 
 commander.parseAsync(process.argv);

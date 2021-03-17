@@ -6,10 +6,13 @@ import chalk from "chalk";
  * 进度条加载
  */
 export function spining(msg: string, callback: () => void) {
-  const spinner = ora(`${msg}中... \n`).start();
+  const spinner = ora(`${msg}中...`);
+  spinner.start();
+
   if (callback) {
     callback();
   }
+
   spinner.succeed(`${msg}成功`);
 }
 
