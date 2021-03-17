@@ -40,8 +40,8 @@ commander
   .option("--export <export>", "导出目录")
   .option("--lang <lang>", "要检查的语言")
   .description("导出未翻译的文案")
-  .action((args) => {
-    exportUntranslatedMessages(args.export, args.lang);
+  .action((options) => {
+    exportUntranslatedMessages(options.export, options.lang);
   });
 
 commander
@@ -49,8 +49,8 @@ commander
   .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
   .option("--lang <lang>", "要检查的语言")
   .description("导出未使用文案")
-  .action((args) => {
-    exportUnusedMessages(args.file, args.lang);
+  .action((options) => {
+    exportUnusedMessages(options.file, options.lang);
   });
 
 commander
@@ -58,8 +58,8 @@ commander
   .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
   .option("--lang <lang>", "要检查的语言")
   .description("校验未定义的文案")
-  .action((args) => {
-    checkUndefinedMessages(args.file, args.lang);
+  .action((options) => {
+    checkUndefinedMessages(options.file, options.lang);
   });
 
 commander.parseAsync(process.argv);
