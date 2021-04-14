@@ -32,7 +32,7 @@ function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
         )
       );
       log.primary();
-      log.primary(log.chalk.blue(`[ ${unUsedKeys.join(" , ")} ]`));
+      log.primary(log.chalk.blue(`[\n ${unUsedKeys.join(" \n ")}\n]`));
     }
   });
 }

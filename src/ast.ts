@@ -13,7 +13,9 @@ export function findI18NExpressionInFile(code: string) {
   function visit(node: ts.Node) {
     switch (node.kind) {
       case ts.SyntaxKind.CallExpression: {
-        expressions.push(node);
+        if (/^I18N\.get\(["']\w+(\.\w+)*["']/.test(node.getText())) {
+          expressions.push(node);
+        }
         break;
       }
     }
