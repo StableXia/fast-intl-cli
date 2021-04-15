@@ -43,3 +43,15 @@ ftintl unused --file=<path> --lang=[lang]
 # lang - 指定校验语言
 ftintl unused --file=<path> --lang=[lang]
 ```
+
+#### ftintl zh
+
+```sh
+# 检查中文文案
+# file - 指定要校验的文件或文件夹
+ftintl unused --file=<path>
+```
+
+### demo
+
+![image](https://github.com/xiaotangdou/fast-intl-cli/blob/master/demo.gif)
