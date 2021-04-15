@@ -54,4 +54,4 @@ ftintl unused --file=<path>
 
 ### demo
 
-![image](https://github.com/xiaotangdou/fast-intl-cli/blob/master/demo.gif)
+![image](https://github.com/xiaotangdou/fast-intl-cli/blob/main/demo.gif)
