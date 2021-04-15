@@ -6,6 +6,7 @@ import packageJson from "../package.json";
 import { initCLI, initLangs } from "./init";
 import { exportUntranslatedMessages, exportUnusedMessages } from "./exports";
 import { checkUndefinedMessages } from "./checkUndefinedMessages";
+import { checkChineseText } from "./checkChineseText";
 import { spining } from "./view";
 
 commander
@@ -66,6 +67,16 @@ commander
   .action((options) => {
     spining("校验未定义的文案", () => {
       checkUndefinedMessages(options.file, options.lang);
+    });
+  });
+
+commander
+  .command("zh")
+  .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
+  .description("检查中文文案")
+  .action((options) => {
+    spining("检查中文文案", () => {
+      checkChineseText(options.file);
     });
   });
 

@@ -8,11 +8,13 @@ import chalk from "chalk";
 export function spining(msg: string, callback: () => void) {
   const spinner = ora(`${msg}中...`);
   spinner.start();
+  log.primary();
 
   if (callback) {
     callback();
   }
 
+  log.primary();
   spinner.succeed(`${msg}成功`);
 }
 
