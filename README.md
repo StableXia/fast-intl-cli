@@ -20,16 +20,16 @@ export default {
 #### ftintl untranslated
 
 ```sh
-# 导出未翻译的文案
-# export - 指定文件导出目录
+# 导出资源文件中未翻译的文案
+# output-path - 指定文件导出目录
 # lang - 指定检查语言
-ftintl untranslated --export=[path] --lang=[lang]
+ftintl untranslated --output-path=[path] --lang=[lang]
 ```
 
 #### ftintl unused
 
 ```sh
-# 校验未使用文案
+# 校验资源文件中未使用文案
 # file - 指定要校验的文件或文件夹
 # lang - 指定校验语言
 ftintl unused --file=<path> --lang=[lang]
@@ -38,18 +38,20 @@ ftintl unused --file=<path> --lang=[lang]
 #### ftintl undefined
 
 ```sh
-# 校验未定义的文案
+# 校验已使用但未在资源文件定义的文案
 # file - 指定要校验的文件或文件夹
 # lang - 指定校验语言
-ftintl unused --file=<path> --lang=[lang]
+ftintl undefined --file=<path> --lang=[lang]
 ```
 
 #### ftintl zh
 
 ```sh
-# 检查中文文案
+# 检查文件中的中文文案
+# mode - 输出校验文案的方式，terminal、json，默认：terminal
 # file - 指定要校验的文件或文件夹
-ftintl unused --file=<path>
+# output-path - 以 json 模式输出校验文案的 path
+ftintl zh terminal --file=<path>
 ```
 
 ### demo

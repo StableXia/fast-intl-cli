@@ -1,10 +1,10 @@
 import ts from "typescript";
 import fs from "fs";
 import path from "path";
-import { readFile, getLangMessages } from "./utils";
+import { readFile } from "./utils";
 import { readFileSync, patternToFunction } from "./readDir";
 import { CHINESE_CHAR_REGEXP } from "./regexp";
-import { removeFileComment } from "./utils";
+import { removeFileComment, getDate } from "./utils";
 import { log } from "./view";
 import { getCLIConfigJson } from "./config";
 
@@ -104,7 +104,12 @@ export function findChineseText(code: string, fileName: string) {
   return findTextInTs(code, fileName);
 }
 
-export function checkChineseText(filePath: string) {
+export function checkChineseText(
+  mode: "terminal" | "json",
+  options: { filePath: string; outputPath?: string }
+) {
+  const { filePath, outputPath } = options;
+
   if (!fs.existsSync(filePath)) {
     log.primary(log.chalk.red(`指定文件或目录不存在：【${filePath}】`));
     return;
@@ -138,7 +143,14 @@ export function checkChineseText(filePath: string) {
     allChineseText[file] = matches;
   });
 
-  logChineseText(allChineseText);
+  if (mode === "terminal") {
+    logChineseText(allChineseText);
+    return;
+  }
+
+  if (mode === "json") {
+    exportChineseText(allChineseText, outputPath);
+  }
 }
 
 function logChineseText(allChineseText: {
@@ -164,4 +176,43 @@ function logChineseText(allChineseText: {
   });
   log.primary();
   log.primary(log.chalk.yellow(`匹配到中文文案共[${count}]处`));
+}
+
+function exportChineseText(
+  allChineseText: {
+    [file: string]: Array<{ node: ts.Node; text: string; isString: boolean }>;
+  },
+  exportDir?: string
+) {
+  const dir = exportDir || "./export-lang";
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  const temp: any = {};
+
+  Object.keys(allChineseText).forEach((key) => {
+    if (allChineseText[key].length === 0) {
+      return;
+    }
+
+    temp[key] = [];
+
+    allChineseText[key].forEach((item) => {
+      const { node, text } = item;
+      const {
+        line,
+        character,
+      } = node.getSourceFile().getLineAndCharacterOfPosition(node.getStart());
+
+      temp[key].push({
+        text,
+        position: `${line + 1}:${character}`,
+      });
+    });
+  });
+
+  const fileName = `zh-${getDate()}.json`;
+  fs.writeFileSync(path.join(dir, fileName), JSON.stringify(temp, null, 2));
+  log.primary(log.chalk.green(`文案已导入${fileName}`));
 }

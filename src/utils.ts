@@ -164,3 +164,21 @@ export function removeFileComment(code: string, fileName: string) {
 
   return printer.printFile(sourceFile);
 }
+
+function prefixZero(num: number) {
+  return num >= 10 ? num : `0${num}`;
+}
+
+export function getDate() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
+
+  return `${year}${prefixZero(month)}${prefixZero(day)}${prefixZero(
+    hour
+  )}${prefixZero(minute)}${prefixZero(second)}`;
+}
