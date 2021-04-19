@@ -70,16 +70,11 @@ export function traverse(
   traverseInner(obj, cb, []);
 }
 
-function checkI18NExpression(
-  filePath: string,
-  text: string,
-  callback: () => void
-) {
+function checkI18NExpression(filePath: string, text: string) {
   const code = readFile(filePath);
   const exc = new RegExp(`I18N.get\\(['"]${text}['"][\\),]`);
-  if (exc.test(code as string)) {
-    callback();
-  }
+
+  return exc.test(code as string);
 }
 
 export function readFile(fileName: string) {
@@ -88,40 +83,14 @@ export function readFile(fileName: string) {
   }
 }
 
-export function recursiveCheckI18NExpression(fileName: string, text: string) {
-  let hasText = false;
-  if (!fs.existsSync(fileName)) {
-    return false;
-  }
+export function checkI18NExpressionUsed(files: string[], text: string) {
+  return !files.every((file) => {
+    if (checkI18NExpression(file, text)) {
+      return false;
+    }
 
-  if (isFile(fileName) && !hasText) {
-    checkI18NExpression(fileName, text, () => {
-      hasText = true;
-    });
-  }
-
-  if (isDirectory(fileName)) {
-    const files = fs.readdirSync(fileName).filter((file) => {
-      return (
-        !file.startsWith(".") &&
-        !["node_modules", "build", "dist"].includes(file)
-      );
-    });
-
-    files.forEach(function (val, key) {
-      const temp = path.join(fileName, val);
-      if (isDirectory(temp) && !hasText) {
-        hasText = recursiveCheckI18NExpression(temp, text);
-      }
-      if (isFile(temp) && !hasText) {
-        checkI18NExpression(temp, text, () => {
-          hasText = true;
-        });
-      }
-    });
-  }
-
-  return hasText;
+    return true;
+  });
 }
 
 export function getLangPath(lang: string) {

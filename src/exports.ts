@@ -1,9 +1,10 @@
 import fs from "fs";
 import { tsvFormatRows } from "d3-dsv";
 import { getCLIConfigJson } from "./config";
+import { readFileSync, patternToFunction } from "./readDir";
 import {
   traverse,
-  recursiveCheckI18NExpression,
+  checkI18NExpressionUsed,
   getLangMessages,
   getLangPath,
 } from "./utils";
@@ -94,12 +95,28 @@ function findUnusedMessages(
   messages: { [key: string]: any }
 ) {
   const unUnsedKeys: string[] = [];
+  const config = getCLIConfigJson();
+  const files = readFileSync(filePath, (file, stats) => {
+    const basename = path.basename(file);
 
-  traverse(messages, (text, path) => {
-    const hasKey = recursiveCheckI18NExpression(filePath, path);
+    if (stats.isFile()) {
+      const check = patternToFunction(config.ignoreFile, () => false);
+      return !check(basename, stats);
+    }
+
+    if (stats.isDirectory()) {
+      const check = patternToFunction(config.ignoreDir, () => false);
+      return !check(basename, stats);
+    }
+
+    return false;
+  });
+
+  traverse(messages, (text, fullKey) => {
+    const hasKey = checkI18NExpressionUsed(files, fullKey);
 
     if (!hasKey) {
-      unUnsedKeys.push(`I18N.get("${path}")`);
+      unUnsedKeys.push(`I18N.get("${fullKey}")`);
     }
   });
 
