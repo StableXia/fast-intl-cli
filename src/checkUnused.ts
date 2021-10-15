@@ -1,17 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { tsvFormatRows } from 'd3-dsv';
 import { getValFromConfiguration } from './config';
 import { readFileSync, patternToFunction } from './readDir';
-import {
-  traverse,
-  checkI18NExpressionUsed,
-  getLangMessages,
-  getLangPath,
-} from './utils';
-import { CHINESE_CHAR_REGEXP } from './regexp';
+import { traverse, checkI18NExpressionUsed, getLangMessages } from './utils';
 import { log } from './view';
-import { IFastIntlConfig } from './types';
 
 function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
   let total = Object.values(unUnsedMessages).reduce(
@@ -36,59 +28,6 @@ function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
       log.primary();
       log.primary(log.chalk.blue(`[\n ${unUsedKeys.join(' \n ')}\n]`));
     }
-  });
-}
-
-function findUntranslatedMessages(lang: string) {
-  const allMessages = getLangMessages(lang);
-  const existingTranslations = getLangMessages(
-    lang,
-    (message, key) =>
-      !CHINESE_CHAR_REGEXP.test(allMessages[key]) ||
-      allMessages[key] !== message,
-  );
-
-  const messagesToTranslate = Object.keys(allMessages)
-    .filter((key) => !existingTranslations.hasOwnProperty(key))
-    .map((key) => {
-      let message = allMessages[key];
-      message = JSON.stringify(message).slice(1, -1);
-      return [key, message];
-    });
-
-  return messagesToTranslate;
-}
-
-/**
- * 导出未翻译文案
- */
-export function exportUntranslatedMessages(exportDir: string, lang?: string) {
-  const langs = lang
-    ? [lang]
-    : (getValFromConfiguration('langs') as IFastIntlConfig['langs']);
-
-  langs.forEach((lang) => {
-    const messagesToTranslate = findUntranslatedMessages(lang);
-
-    if (messagesToTranslate.length === 0) {
-      log.primary(log.chalk.green(`在[${lang}]中未找到未翻译的文案`));
-      return;
-    }
-
-    log.primary();
-    log.primary(
-      log.chalk.bgRed.white(
-        `在【${lang}】中找到【${messagesToTranslate.length}】处未翻译的文案：`,
-      ),
-    );
-    log.primary();
-    const content = tsvFormatRows(messagesToTranslate);
-    const dir = path.resolve(exportDir);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-    fs.writeFileSync(path.join(dir, lang), content);
-    log.primary(log.chalk.green(`在[${lang}]中的未翻译文案导出成功`));
   });
 }
 
@@ -125,10 +64,7 @@ function findUnusedMessages(
   return unUnsedKeys;
 }
 
-/**
- * 导出未使用的文案
- */
-export function exportUnusedMessages(filePath: string, lang: string) {
+export function checkUnusedMessages(filePath: string, lang: string) {
   if (!fs.existsSync(filePath)) {
     log.primary(log.chalk.red(`指定文件或目录不存在：【${filePath}】`));
     return;
@@ -139,9 +75,8 @@ export function exportUnusedMessages(filePath: string, lang: string) {
   const langs = lang ? [lang] : config.langs;
 
   langs.forEach((lang) => {
-    const langPath = getLangPath(lang);
-    const messages = require(langPath);
-    const unUnsedKeys = findUnusedMessages(filePath, messages);
+    const allMessages = getLangMessages(lang);
+    const unUnsedKeys = findUnusedMessages(filePath, allMessages);
     unUnsedMessages[lang] = unUnsedKeys;
   });
 

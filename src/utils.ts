@@ -71,29 +71,38 @@ export function checkI18NExpressionUsed(files: string[], text: string) {
   });
 }
 
-export function getLangPath(lang: string) {
-  const langDir = getValFromConfiguration('langDir') as string;
+export function getLangDir(lang: string) {
+  const config = getValFromConfiguration();
 
-  return path.resolve(langDir, `${lang}.json`);
+  return path.resolve(config.langDir, lang);
 }
 
 export function getLangMessages(
   lang: string,
   filter = (message: string, key: string) => true,
 ) {
-  const langPath = getLangPath(lang);
+  const srcLangDir = getLangDir(lang);
+  let files = fs.readdirSync(srcLangDir);
+  files = files
+    .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
+    .map((file) => path.resolve(srcLangDir, file));
 
-  const messages = require(langPath);
-  const flattenedMessages: { [key: string]: string } = {};
+  const allMessages = files.map((file) => {
+    const messages = getFileToJson(file);
+    const fileNameWithoutExt = path.basename(file).split('.')[0];
+    const flattenedMessages: { [key: string]: string } = {};
 
-  traverse(messages, (message, path) => {
-    const key = path;
-    if (filter(message, key)) {
-      flattenedMessages[key] = message;
-    }
+    traverse(messages, (message, path) => {
+      const key = fileNameWithoutExt + '.' + path;
+      if (filter(message, key)) {
+        flattenedMessages[key] = message;
+      }
+    });
+
+    return flattenedMessages;
   });
 
-  return flattenedMessages;
+  return Object.assign({}, ...allMessages);
 }
 
 /**
@@ -128,4 +137,26 @@ export function getDate() {
   return `${year}${prefixZero(month)}${prefixZero(day)}${prefixZero(
     hour,
   )}${prefixZero(minute)}${prefixZero(second)}`;
+}
+
+/**
+ * 获取文件内容并转成json
+ */
+export function getFileToJson(filePath: string) {
+  let temp: { [key: string]: any } = {};
+
+  try {
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+
+    let obj = fileContent.match(
+      /export\s*default\s*({[\s\S]+);?$/,
+    )?.[1] as string;
+    obj = obj.replace(/\s*;\s*$/, '');
+
+    temp = eval('(' + obj + ')');
+  } catch (err) {
+    console.error(err);
+  }
+
+  return temp;
 }

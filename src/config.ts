@@ -42,7 +42,3 @@ export function getValFromConfiguration(
 
   return config;
 }
-
-export function getFtintlDir() {
-  return ROOT_DIR;
-}
