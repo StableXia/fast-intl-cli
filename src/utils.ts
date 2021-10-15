@@ -142,8 +142,8 @@ export function getDate() {
 /**
  * 获取文件内容并转成json
  */
-export function getFileToJson(filePath: string) {
-  let temp: { [key: string]: any } = {};
+export function getFileToJson<T = any>(filePath: string): T {
+  let temp: any = {};
 
   try {
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
