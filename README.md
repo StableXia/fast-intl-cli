@@ -11,9 +11,15 @@ export default {
   // 语言文件目录
   langDir: './.fastIntl/',
   // 默认语言
-  defaultLang: './.fastIntl/zh-hans.json',
+  defaultLang: 'zh-hans',
   // 多语言目录
   langs: ['zh-hans'],
+  ignoreFile: (basename) => {
+    return /.(json|md|png|jpg|jpeg|svg)$/.test(basename);
+  },
+  ignoreDir: (basename) => {
+    return /.(node_modules|__tests__)$/.test(basename);
+  },
 };
 ```
 
@@ -21,9 +27,10 @@ export default {
 
 ```sh
 # 导出资源文件中未翻译的文案
+# mode - 输出校验文案的方式，terminal、json，默认：terminal
 # output-path - 指定文件导出目录
 # lang - 指定检查语言
-ftintl untranslated --output-path=[path] --lang=[lang]
+ftintl untranslated terminal --output-path=[path] --lang=[lang]
 ```
 
 #### ftintl unused
