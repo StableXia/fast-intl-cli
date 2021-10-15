@@ -1,4 +1,4 @@
-export interface ICLIConfig {
+export interface IFastIntlConfig {
   langDir: string;
   defaultLang: string;
   langs: string[];

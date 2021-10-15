@@ -5,11 +5,13 @@ export const DEFAULT_LANG = 'zh-hans';
 // 资源文件目录
 export const DEFAULT_LANG_DIR = './.fastIntl/';
 
+export const ROOT_DIR = process.cwd();
+
 // CLI 配置文件
-export const DEFAULT_CLI_CONFIG_FILE = {
+export const DEFAULT_FAST_INTL_CONFIG_FILE = {
   js: `{
     langDir: '${DEFAULT_LANG_DIR}',
-    defaultLang: '${DEFAULT_LANG_DIR}${DEFAULT_LANG}.json',
+    defaultLang: '${DEFAULT_LANG}',
     langs: ['${DEFAULT_LANG}'],
     ignoreFile: (basename) => {
       return /\.(json|md|png|jpg|jpeg|svg)$/.test(basename);
@@ -20,7 +22,7 @@ export const DEFAULT_CLI_CONFIG_FILE = {
   };`,
   ts: `{
     langDir: '${DEFAULT_LANG_DIR}',
-    defaultLang: '${DEFAULT_LANG_DIR}${DEFAULT_LANG}.json',
+    defaultLang: '${DEFAULT_LANG}',
     langs: ['${DEFAULT_LANG}'],
     ignoreFile: (basename: string) => {
       return /\.(json|md|png|jpg|jpeg|svg)$/.test(basename);

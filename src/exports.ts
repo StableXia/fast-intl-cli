@@ -1,25 +1,26 @@
-import fs from "fs";
-import { tsvFormatRows } from "d3-dsv";
-import { getCLIConfigJson } from "./config";
-import { readFileSync, patternToFunction } from "./readDir";
+import fs from 'fs';
+import path from 'path';
+import { tsvFormatRows } from 'd3-dsv';
+import { getValFromConfiguration } from './config';
+import { readFileSync, patternToFunction } from './readDir';
 import {
   traverse,
   checkI18NExpressionUsed,
   getLangMessages,
   getLangPath,
-} from "./utils";
-import { CHINESE_CHAR_REGEXP } from "./regexp";
-import { log } from "./view";
-import path from "path";
+} from './utils';
+import { CHINESE_CHAR_REGEXP } from './regexp';
+import { log } from './view';
+import { IFastIntlConfig } from './types';
 
 function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
   let total = Object.values(unUnsedMessages).reduce(
     (prev, next) => prev + next.length,
-    0
+    0,
   );
 
   if (total === 0) {
-    log.primary(log.chalk.green("未找到未使用的文案"));
+    log.primary(log.chalk.green('未找到未使用的文案'));
     return;
   }
 
@@ -29,11 +30,11 @@ function logUnusedMessages(unUnsedMessages: { [key: string]: string[] }) {
       log.primary();
       log.primary(
         log.chalk.bgRed.white(
-          `在【${key}】中找到【${unUsedKeys.length}】处未使用的文案如下：`
-        )
+          `在【${key}】中找到【${unUsedKeys.length}】处未使用的文案如下：`,
+        ),
       );
       log.primary();
-      log.primary(log.chalk.blue(`[\n ${unUsedKeys.join(" \n ")}\n]`));
+      log.primary(log.chalk.blue(`[\n ${unUsedKeys.join(' \n ')}\n]`));
     }
   });
 }
@@ -44,7 +45,7 @@ function findUntranslatedMessages(lang: string) {
     lang,
     (message, key) =>
       !CHINESE_CHAR_REGEXP.test(allMessages[key]) ||
-      allMessages[key] !== message
+      allMessages[key] !== message,
   );
 
   const messagesToTranslate = Object.keys(allMessages)
@@ -61,9 +62,10 @@ function findUntranslatedMessages(lang: string) {
 /**
  * 导出未翻译文案
  */
-export function exportUntranslatedMessages(exportDir?: string, lang?: string) {
-  const config = getCLIConfigJson();
-  const langs = lang ? [lang] : config.langs;
+export function exportUntranslatedMessages(exportDir: string, lang?: string) {
+  const langs = lang
+    ? [lang]
+    : (getValFromConfiguration('langs') as IFastIntlConfig['langs']);
 
   langs.forEach((lang) => {
     const messagesToTranslate = findUntranslatedMessages(lang);
@@ -76,12 +78,12 @@ export function exportUntranslatedMessages(exportDir?: string, lang?: string) {
     log.primary();
     log.primary(
       log.chalk.bgRed.white(
-        `在【${lang}】中找到【${messagesToTranslate.length}】处未翻译的文案：`
-      )
+        `在【${lang}】中找到【${messagesToTranslate.length}】处未翻译的文案：`,
+      ),
     );
     log.primary();
     const content = tsvFormatRows(messagesToTranslate);
-    const dir = exportDir || "./export-lang";
+    const dir = path.resolve(exportDir);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
@@ -92,10 +94,10 @@ export function exportUntranslatedMessages(exportDir?: string, lang?: string) {
 
 function findUnusedMessages(
   filePath: string,
-  messages: { [key: string]: any }
+  messages: { [key: string]: any },
 ) {
   const unUnsedKeys: string[] = [];
-  const config = getCLIConfigJson();
+  const config = getValFromConfiguration();
   const files = readFileSync(filePath, (file, stats) => {
     const basename = path.basename(file);
 
@@ -133,7 +135,7 @@ export function exportUnusedMessages(filePath: string, lang: string) {
   }
 
   const unUnsedMessages: { [key: string]: string[] } = {};
-  const config = getCLIConfigJson();
+  const config = getValFromConfiguration();
   const langs = lang ? [lang] : config.langs;
 
   langs.forEach((lang) => {

@@ -1,14 +1,14 @@
-import ts from "typescript";
-import fs from "fs";
-import path from "path";
-import { readFile, getLangMessages } from "./utils";
-import { log } from "./view";
-import { findI18NExpressionInFile } from "./ast";
-import { readFileSync, patternToFunction } from "./readDir";
-import { getCLIConfigJson } from "./config";
+import ts from 'typescript';
+import fs from 'fs';
+import path from 'path';
+import { readFile, getLangMessages } from './utils';
+import { log } from './view';
+import { findI18NExpressionInFile } from './ast';
+import { readFileSync, patternToFunction } from './readDir';
+import { getValFromConfiguration } from './config';
 
 function findI18NExpression(filePath: string) {
-  const code = readFile(filePath) || "";
+  const code = readFile(filePath) || '';
   const expressions = findI18NExpressionInFile(code);
 
   return expressions;
@@ -16,10 +16,11 @@ function findI18NExpression(filePath: string) {
 
 function checkI18NExpressionInMessages(
   messages: { [key: string]: string },
-  node: ts.Node
+  node: ts.Node,
 ) {
   return !Object.keys(messages).every(
-    (key) => !new RegExp(`I18N.get\\(['"]${key}['"][\\),]`).test(node.getText())
+    (key) =>
+      !new RegExp(`I18N.get\\(['"]${key}['"][\\),]`).test(node.getText()),
   );
 }
 
@@ -27,7 +28,7 @@ function findUndefI18NExpression(
   I18NExpression: {
     [file: string]: ts.Node[];
   },
-  messages: { [key: string]: string }
+  messages: { [key: string]: string },
 ) {
   const undefI18NExpression: { [file: string]: ts.Node[] } = {};
 
@@ -56,11 +57,11 @@ function logUndefI18NExpression(undefI18NExpression: {
 }) {
   let total = Object.values(undefI18NExpression).reduce(
     (prev, next) => prev + next.count,
-    0
+    0,
   );
 
   if (total === 0) {
-    log.primary(log.chalk.green("未找到未定义但使用的 I18N 声明"));
+    log.primary(log.chalk.green('未找到未定义但使用的 I18N 声明'));
     return;
   }
 
@@ -71,8 +72,8 @@ function logUndefI18NExpression(undefI18NExpression: {
       log.primary();
       log.primary(
         log.chalk.bgRed.white(
-          `在【${key}】中找到【${item.count}】处未定义但使用的 I18N 声明如下：`
-        )
+          `在【${key}】中找到【${item.count}】处未定义但使用的 I18N 声明如下：`,
+        ),
       );
       log.primary();
 
@@ -86,7 +87,7 @@ function logUndefI18NExpression(undefI18NExpression: {
             .getLineAndCharacterOfPosition(node.getStart());
           log.primary(
             log.chalk.red(`未定义：[${node.getText()}]`),
-            log.chalk.blue(`${key}:${line + 1}:${character}`)
+            log.chalk.blue(`${key}:${line + 1}:${character}`),
           );
         });
       });
@@ -103,7 +104,7 @@ export function checkUndefinedMessages(filePath: string, lang?: string) {
     return;
   }
 
-  const config = getCLIConfigJson();
+  const config = getValFromConfiguration();
   const allI18NExpression: { [file: string]: ts.Node[] } = {};
   const allUndefI18NExpression: {
     [lang: string]: {
@@ -141,14 +142,14 @@ export function checkUndefinedMessages(filePath: string, lang?: string) {
 
     const undefI18NExpression = findUndefI18NExpression(
       allI18NExpression,
-      messages
+      messages,
     );
 
     allUndefI18NExpression[lang] = {
       undefI18NExpression,
       count: Object.values(undefI18NExpression).reduce(
         (prev, next) => prev + next.length,
-        0
+        0,
       ),
     };
   });

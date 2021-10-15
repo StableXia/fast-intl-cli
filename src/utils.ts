@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
-import ts from "typescript";
-import { getCLIConfigJson } from "./config";
+import fs from 'fs';
+import path from 'path';
+import ts from 'typescript';
+import { getValFromConfiguration } from './config';
 
 /**
  * 判断是文件夹
@@ -24,44 +24,22 @@ export function isFile(filePath: string) {
 }
 
 /**
- * 获取文件内容并转成json
- */
-export function getFileToJson(filePath: string) {
-  let temp: { [key: string]: any } = {};
-
-  try {
-    const fileContent = fs.readFileSync(filePath, { encoding: "utf8" });
-
-    let obj = fileContent.match(
-      /export\s*default\s*({[\s\S]+);?$/
-    )?.[1] as string;
-    obj = obj.replace(/\s*;\s*$/, "");
-
-    temp = eval("(" + obj + ")");
-  } catch (err) {
-    console.error(err);
-  }
-
-  return temp;
-}
-
-/**
  * 深度优先遍历对象中的所有 string 属性，即文案
  */
 export function traverse(
   obj: { [key: string]: any },
-  cb: (message: string, path: string) => void
+  cb: (message: string, path: string) => void,
 ) {
   function traverseInner(
     obj: { [key: string]: string },
     cb: (message: string, path: string) => void,
-    path: string[]
+    path: string[],
   ) {
     Object.keys(obj).forEach((key) => {
       const val = obj[key];
-      if (typeof val === "string") {
-        cb(val, [...path, key].join("."));
-      } else if (typeof val === "object" && val !== null) {
+      if (typeof val === 'string') {
+        cb(val, [...path, key].join('.'));
+      } else if (typeof val === 'object' && val !== null) {
         traverseInner(val, cb, [...path, key]);
       }
     });
@@ -79,7 +57,7 @@ function checkI18NExpression(filePath: string, text: string) {
 
 export function readFile(fileName: string) {
   if (fs.existsSync(fileName)) {
-    return fs.readFileSync(fileName, "utf-8");
+    return fs.readFileSync(fileName, 'utf-8');
   }
 }
 
@@ -94,14 +72,14 @@ export function checkI18NExpressionUsed(files: string[], text: string) {
 }
 
 export function getLangPath(lang: string) {
-  const config = getCLIConfigJson();
+  const langDir = getValFromConfiguration('langDir') as string;
 
-  return path.resolve(config.langDir, `${lang}.json`);
+  return path.resolve(langDir, `${lang}.json`);
 }
 
 export function getLangMessages(
   lang: string,
-  filter = (message: string, key: string) => true
+  filter = (message: string, key: string) => true,
 ) {
   const langPath = getLangPath(lang);
 
@@ -124,11 +102,11 @@ export function getLangMessages(
 export function removeFileComment(code: string, fileName: string) {
   const printer: ts.Printer = ts.createPrinter({ removeComments: true });
   const sourceFile: ts.SourceFile = ts.createSourceFile(
-    "",
+    '',
     code,
     ts.ScriptTarget.ES2015,
     true,
-    fileName.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+    fileName.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
 
   return printer.printFile(sourceFile);
@@ -148,6 +126,6 @@ export function getDate() {
   const second = date.getSeconds();
 
   return `${year}${prefixZero(month)}${prefixZero(day)}${prefixZero(
-    hour
+    hour,
   )}${prefixZero(minute)}${prefixZero(second)}`;
 }

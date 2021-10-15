@@ -3,12 +3,12 @@
 import commander from 'commander';
 import inquirer from 'inquirer';
 import packageJson from '../package.json';
-import { initCLI, initLangs } from './init';
+import { initFastIntl, initLangs } from './init';
 import { exportUntranslatedMessages, exportUnusedMessages } from './exports';
 import { checkUndefinedMessages } from './checkUndefinedMessages';
 import { checkChineseText } from './checkChineseText';
 import { spining, log } from './view';
-import { getCLIConfig } from './config';
+import { getFastIntlConfig } from './config';
 
 commander
   .version(packageJson.version, '-v, --version')
@@ -19,9 +19,9 @@ commander
   .command('init')
   .description('初始化多语言配置')
   .action(async (args) => {
-    const CLIConfig = getCLIConfig();
+    const configPath = getFastIntlConfig();
 
-    if (CLIConfig) {
+    if (configPath) {
       log.error('初始化失败，ftintl相关配置已存在');
       return;
     }
@@ -29,12 +29,12 @@ commander
     const { fileType } = await inquirer.prompt({
       type: 'list',
       name: 'fileType',
-      choices: ['ts', 'js'],
-      default: 'ts',
+      choices: ['js'],
+      default: 'js',
       message: '请选择使用的语言',
     });
 
-    initCLI({ fileType });
+    initFastIntl({ fileType });
     initLangs();
   });
 
@@ -43,7 +43,7 @@ commander
  */
 commander
   .command('untranslated')
-  .option('--output-path <outputPath>', '输出目录')
+  .option('--output-path <outputPath>', '输出目录', 'ftintl-untranslated-lang')
   .option('--lang <lang>', '要检查的语言')
   .description('导出资源文件中未翻译的文案')
   .action((options) => {
