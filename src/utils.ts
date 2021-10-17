@@ -160,3 +160,18 @@ export function getFileToJson<T = any>(filePath: string): T {
 
   return temp;
 }
+
+export function winPath(path: string) {
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path);
+  if (isExtendedLengthPath) {
+    return path;
+  }
+
+  return path.replace(/\\/g, '/');
+}
+
+export function compatESModuleRequire<
+  T extends { __esModule: boolean; default: any }
+>(m: T): T extends { __esModule: true; default: infer U } ? U : T {
+  return m.__esModule ? m.default : m;
+}

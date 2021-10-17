@@ -10,6 +10,14 @@ import { checkUndefinedMessages } from './checkUndefined';
 import { checkChineseText } from './checkChinese';
 import { spining, log } from './view';
 import { getFastIntlConfig } from './config';
+import babelRegister from './babelRegister';
+
+const configPath = getFastIntlConfig();
+
+babelRegister.setOnlyMap({
+  key: 'config',
+  value: configPath ? [configPath] : [],
+});
 
 commander
   .version(packageJson.version, '-v, --version')
@@ -19,9 +27,7 @@ commander
 commander
   .command('init')
   .description('初始化多语言配置')
-  .action(async (args) => {
-    const configPath = getFastIntlConfig();
-
+  .action(async () => {
     if (configPath) {
       log.error('初始化失败，ftintl相关配置已存在');
       return;
@@ -30,8 +36,8 @@ commander
     const { fileType } = await inquirer.prompt({
       type: 'list',
       name: 'fileType',
-      choices: ['js'],
-      default: 'js',
+      choices: ['ts', 'js'],
+      default: 'ts',
       message: '请选择使用的语言',
     });
 

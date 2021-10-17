@@ -3,7 +3,7 @@ import path from 'path';
 import { FTINTL_CONFIG_FILENAME, ROOT_DIR } from './constants';
 import { IFastIntlConfig } from './types';
 import assert from './assert';
-import { getFileToJson } from './utils';
+import { compatESModuleRequire } from './utils';
 
 export function getFastIntlConfig() {
   let configPath = path.resolve(ROOT_DIR, `${FTINTL_CONFIG_FILENAME}.js`);
@@ -35,7 +35,7 @@ export function getValFromConfiguration(
 
   assert(!!configPath, 'ftintl 配置文件不存在');
 
-  const config = getFileToJson(configPath);
+  const config = compatESModuleRequire(require(configPath));
 
   if (typeof key === 'string') {
     return config[key];
