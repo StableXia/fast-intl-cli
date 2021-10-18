@@ -1,4 +1,5 @@
 export interface IFastIntlConfig {
+  mode: 'single' | 'multi';
   langDir: string;
   defaultLang: string;
   langs: string[];

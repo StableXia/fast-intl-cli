@@ -71,21 +71,18 @@ export function checkI18NExpressionUsed(files: string[], text: string) {
   });
 }
 
-export function getLangDir(lang: string) {
-  const config = getValFromConfiguration();
-
-  return path.resolve(config.langDir, lang);
-}
-
 export function getLangMessages(
   lang: string,
   filter = (message: string, key: string) => true,
 ) {
-  const srcLangDir = getLangDir(lang);
-  let files = fs.readdirSync(srcLangDir);
+  const config = getValFromConfiguration();
+  const srcLang = path.resolve(config.langDir, lang);
+
+  let files =
+    config.mode === 'single' ? [`${srcLang}.ts`] : fs.readdirSync(srcLang);
   files = files
     .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
-    .map((file) => path.resolve(srcLangDir, file));
+    .map((file) => path.resolve(srcLang, file));
 
   const allMessages = files.map((file) => {
     const messages = getFileToJson(file);
@@ -93,7 +90,8 @@ export function getLangMessages(
     const flattenedMessages: { [key: string]: string } = {};
 
     traverse(messages, (message, path) => {
-      const key = fileNameWithoutExt + '.' + path;
+      const key =
+        config.mode === 'single' ? path : `${fileNameWithoutExt}.${path}`;
       if (filter(message, key)) {
         flattenedMessages[key] = message;
       }
