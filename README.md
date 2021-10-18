@@ -8,6 +8,8 @@ fast-intl-cli 是 [vscode-fast-intl](https://github.com/xiaotangdou/vscode-fast-
 
 ```js
 export default {
+  // 多语言文件组合方式
+  mode: 'single',
   // 语言文件目录
   langDir: './.fastIntl/',
   // 默认语言
