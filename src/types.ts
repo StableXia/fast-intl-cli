@@ -1,4 +1,5 @@
 export interface IFastIntlConfig {
+  langExt: 'json' | 'ts';
   mode: 'single' | 'multi';
   langDir: string;
   defaultLang: string;

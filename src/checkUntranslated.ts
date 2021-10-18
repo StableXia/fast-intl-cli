@@ -53,7 +53,7 @@ export function logUntranslatedMessages(messages: any, lang: string) {
   } else {
     log.primary(
       log.chalk.bgRed.white(
-        `在【${lang}】中找到【${messages.length}】处未翻译的文案：`,
+        `在【${lang}】中找到【${messages.length}】处未翻译的文案。`,
       ),
     );
   }

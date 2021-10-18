@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
 import { getValFromConfiguration } from './config';
+import babelRegister from './babelRegister';
 
 /**
  * 判断是文件夹
@@ -78,14 +79,27 @@ export function getLangMessages(
   const config = getValFromConfiguration();
   const srcLang = path.resolve(config.langDir, lang);
 
-  let files =
-    config.mode === 'single' ? [`${srcLang}.ts`] : fs.readdirSync(srcLang);
-  files = files
-    .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
-    .map((file) => path.resolve(srcLang, file));
+  let files = [];
+  if (config.mode === 'single') {
+    files = [`${srcLang}.${config.langExt}`];
+  } else {
+    files = fs
+      .readdirSync(srcLang)
+      .filter(
+        (file) =>
+          file.endsWith(`.${config.langExt}`) &&
+          file !== `index.${config.langExt}`,
+      )
+      .map((file) => path.resolve(srcLang, file));
+  }
+
+  babelRegister.setOnlyMap({
+    key: 'langPaths',
+    value: files,
+  });
 
   const allMessages = files.map((file) => {
-    const messages = getFileToJson(file);
+    const messages = compatESModuleRequire(require(file));
     const fileNameWithoutExt = path.basename(file).split('.')[0];
     const flattenedMessages: { [key: string]: string } = {};
 
