@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import fs from 'fs';
 import path from 'path';
-import { readFile } from './utils';
+import { readFile, generateUuidKey } from './utils';
 import { readFileSync, patternToFunction } from './readDir';
 import { CHINESE_CHAR_REGEXP } from './regexp';
 import { removeFileComment, getDate } from './utils';
@@ -106,9 +106,14 @@ export function findChineseText(code: string, fileName: string) {
 
 export function checkChineseText(
   mode: 'terminal' | 'json',
-  options: { filePath: string; outputPath?: string },
+  options: {
+    filePath: string;
+    outputPath?: string;
+    filename?: string;
+    pure?: boolean;
+  },
 ) {
-  const { filePath, outputPath } = options;
+  const { filePath, outputPath, filename, pure } = options;
 
   if (!fs.existsSync(filePath)) {
     log.primary(log.chalk.red(`指定文件或目录不存在：【${filePath}】`));
@@ -149,7 +154,7 @@ export function checkChineseText(
   }
 
   if (mode === 'json') {
-    exportChineseText(allChineseText, outputPath);
+    exportChineseText(allChineseText, outputPath, filename, pure);
   }
 }
 
@@ -183,12 +188,25 @@ function exportChineseText(
     [file: string]: Array<{ node: ts.Node; text: string; isString: boolean }>;
   },
   exportDir?: string,
+  filename?: string,
+  pure?: boolean,
 ) {
   const dir = exportDir || './export-lang';
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
 
+  const exportFilename = filename ? `${filename}.json` : `zh-${getDate()}.json`;
+  const exportPath = path.resolve(dir, exportFilename);
+
+  if (fs.existsSync(exportPath)) {
+    log.primary();
+    log.primary(log.chalk.red(`该文件已存在：`), log.chalk.blue(exportPath));
+    log.primary();
+    process.exit(0);
+  }
+
+  let count = 0;
   const temp: any = {};
 
   Object.keys(allChineseText).forEach((key) => {
@@ -196,23 +214,35 @@ function exportChineseText(
       return;
     }
 
-    temp[key] = [];
-
-    allChineseText[key].forEach((item) => {
-      const { node, text } = item;
-      const {
-        line,
-        character,
-      } = node.getSourceFile().getLineAndCharacterOfPosition(node.getStart());
-
-      temp[key].push({
-        text,
-        position: `${line + 1}:${character}`,
+    if (pure) {
+      allChineseText[key].forEach((item) => {
+        count += 1;
+        temp[generateUuidKey()] = item.text
       });
-    });
+    } else {
+      temp[key] = [];
+
+      allChineseText[key].forEach((item) => {
+        count += 1;
+        const { node, text } = item;
+        const {
+          line,
+          character,
+        } = node.getSourceFile().getLineAndCharacterOfPosition(node.getStart());
+
+        temp[key].push({
+          text,
+          key: generateUuidKey(),
+          position: `${line + 1}:${character}`,
+        });
+      });
+    }
   });
 
-  const fileName = `zh-${getDate()}.json`;
-  fs.writeFileSync(path.join(dir, fileName), JSON.stringify(temp, null, 2));
-  log.primary(log.chalk.green(`文案已导入${fileName}`));
+  fs.writeFileSync(exportPath, JSON.stringify(temp, null, 2));
+
+  log.primary();
+  log.primary(log.chalk.yellow(`匹配到中文文案共[${count}]处`));
+  log.primary();
+  log.primary(log.chalk.green(`文案已导入：`), log.chalk.blue(exportPath));
 }

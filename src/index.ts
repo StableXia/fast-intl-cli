@@ -97,12 +97,16 @@ commander
   .command('zh [mode]')
   .requiredOption('--file <filePath>', '必须指定扫描的文件或文件夹')
   .option('--output-path [outputPath]', '输出目录', 'ftintl-zh-lang')
+  .option('--filename [filename]', '输出文件名')
+  .option('--pure', '简洁版文件', false)
   .description('检查文件中的中文文案')
   .action((mode = 'terminal', options) => {
     spining('检查文件中的中文文案', () => {
       checkChineseText(mode, {
         filePath: options.file,
         outputPath: options.outputPath,
+        filename: options.filename,
+        pure: options.pure,
       });
     });
   });

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
+import randomstring from 'randomstring';
 import { getValFromConfiguration } from './config';
 import babelRegister from './babelRegister';
 
@@ -186,4 +187,11 @@ export function compatESModuleRequire<
   T extends { __esModule: boolean; default: any }
 >(m: T): T extends { __esModule: true; default: infer U } ? U : T {
   return m.__esModule ? m.default : m;
+}
+
+export function generateUuidKey() {
+  return randomstring.generate({
+    length: 8,
+    charset: 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM',
+  });
 }
