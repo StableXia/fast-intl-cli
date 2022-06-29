@@ -13,7 +13,7 @@ export const DEFAULT_FAST_INTL_CONFIG_FILE = {
     langDir: '${DEFAULT_LANG_DIR}',
     defaultLang: '${DEFAULT_LANG}',
     langs: ['${DEFAULT_LANG}'],
-    importI18N: 'import I18N from 'src/utils/I18N';',
+    importI18N: "import I18N from 'src/utils/I18N';",
     ignoreFile: (basename) => {
       return /\.(json|md|png|jpg|jpeg|svg)$/.test(basename);
     },
@@ -25,7 +25,7 @@ export const DEFAULT_FAST_INTL_CONFIG_FILE = {
     langDir: '${DEFAULT_LANG_DIR}',
     defaultLang: '${DEFAULT_LANG}',
     langs: ['${DEFAULT_LANG}'],
-    importI18N: 'import I18N from 'src/utils/I18N';',
+    importI18N: "import I18N from 'src/utils/I18N';",
     ignoreFile: (basename: string) => {
       return /\.(json|md|png|jpg|jpeg|svg)$/.test(basename);
     },
