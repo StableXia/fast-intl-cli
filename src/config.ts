@@ -1,36 +1,45 @@
-import fs from "fs";
-import path from "path";
-import { FTINTL_CONFIG_FILENAME } from "./constants";
-import { getFileToJson } from "./utils";
-import { ICLIConfig } from "./types";
+import fs from 'fs';
+import path from 'path';
+import { FTINTL_CONFIG_FILENAME, ROOT_DIR } from './constants';
+import { IFastIntlConfig } from './types';
+import assert from './assert';
+import { compatESModuleRequire } from './utils';
 
-export function getCLIConfig() {
-  let CLIConfig = path.resolve(process.cwd(), `${FTINTL_CONFIG_FILENAME}.js`);
+export function getFastIntlConfig() {
+  let configPath = path.resolve(ROOT_DIR, `${FTINTL_CONFIG_FILENAME}.js`);
 
   // 先找js
-  if (!fs.existsSync(CLIConfig)) {
-    CLIConfig = path.resolve(process.cwd(), `${FTINTL_CONFIG_FILENAME}.ts`);
+  if (!fs.existsSync(configPath)) {
+    configPath = path.resolve(ROOT_DIR, `${FTINTL_CONFIG_FILENAME}.ts`);
     //再找ts
-    if (!fs.existsSync(CLIConfig)) {
+    if (!fs.existsSync(configPath)) {
       return null;
     }
   }
 
-  return CLIConfig;
+  return configPath;
 }
 
-export function getCLIConfigJson(): ICLIConfig {
-  const configPath = getCLIConfig();
+export function createFastIntlConfigFile(filePath: string, text: string) {
+  fs.writeFileSync(filePath, text);
+}
 
-  if (typeof configPath !== "string") {
-    return {} as ICLIConfig;
+export function getValFromConfiguration(): IFastIntlConfig;
+export function getValFromConfiguration(
+  key: string,
+): IFastIntlConfig[keyof IFastIntlConfig];
+export function getValFromConfiguration(
+  key?: string,
+): IFastIntlConfig | IFastIntlConfig[keyof IFastIntlConfig] {
+  const configPath = getFastIntlConfig() as string;
+
+  assert(!!configPath, 'ftintl 配置文件不存在');
+
+  const config = compatESModuleRequire(require(configPath));
+
+  if (typeof key === 'string') {
+    return config[key];
   }
 
-  const config = getFileToJson(configPath);
-
-  return config as ICLIConfig;
-}
-
-export function createCLIConfigFile(filePath: string, text: string) {
-  fs.writeFileSync(filePath, text);
+  return config;
 }

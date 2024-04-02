@@ -1,53 +1,64 @@
 #!/usr/bin/env node
 
-import commander from "commander";
-import inquirer from "inquirer";
-import packageJson from "../package.json";
-import { initCLI, initLangs } from "./init";
-import { exportUntranslatedMessages, exportUnusedMessages } from "./exports";
-import { checkUndefinedMessages } from "./checkUndefinedMessages";
-import { checkChineseText } from "./checkChineseText";
-import { spining } from "./view";
+import commander from 'commander';
+import inquirer from 'inquirer';
+import packageJson from '../package.json';
+import { initFastIntl, initLangs } from './init';
+import { checkUntranslatedMessages } from './checkUntranslated';
+import { checkUnusedMessages } from './checkUnused';
+import { checkUndefinedMessages } from './checkUndefined';
+import { checkChineseText } from './checkChinese';
+import { spining, log } from './view';
+import { getFastIntlConfig } from './config';
+import babelRegister from './babelRegister';
+
+const configPath = getFastIntlConfig();
+
+babelRegister.setOnlyMap({
+  key: 'config',
+  value: configPath ? [configPath] : [],
+});
 
 commander
-  .version(packageJson.version, "-v, --version")
-  .name("ftintl")
-  .usage("国际化工具");
+  .version(packageJson.version, '-v, --version')
+  .name('ftintl')
+  .usage('国际化工具');
 
 commander
-  .command("init")
-  .option("-y", "使用默认配置")
-  .description("初始化项目")
-  .action(async (args) => {
-    if (args.y) {
-      initCLI();
-      initLangs();
+  .command('init')
+  .description('初始化多语言配置')
+  .action(async () => {
+    if (configPath) {
+      log.error('初始化失败，ftintl相关配置已存在');
       return;
     }
 
-    const res = await inquirer.prompt({
-      type: "confirm",
-      name: "confirm",
-      default: false,
-      message: "是否初始化CLI相关配置？",
+    const { fileType } = await inquirer.prompt({
+      type: 'list',
+      name: 'fileType',
+      choices: ['ts', 'js'],
+      default: 'ts',
+      message: '请选择使用的语言',
     });
 
-    if (res.confirm) {
-      initCLI();
-    }
+    initFastIntl({ fileType });
+    initLangs();
   });
 
 /**
- * 导出资源文件中未翻译的文案
+ * 校验资源文件中未翻译的文案
  */
 commander
-  .command("untranslated")
-  .option("--output-path <outputPath>", "输出目录")
-  .option("--lang <lang>", "要检查的语言")
-  .description("导出资源文件中未翻译的文案")
-  .action((options) => {
-    spining("导出资源文件中未翻译的文案", () => {
-      exportUntranslatedMessages(options.outputPath, options.lang);
+  .command('untranslated [mode]')
+  .option('--output-path <outputPath>', '输出目录', 'ftintl-untranslated-lang')
+  .option('--lang [lang]', '要检查的语言')
+  .description('校验资源文件中未翻译的文案')
+  .action((mode = 'terminal', options) => {
+    spining('校验资源文件中未翻译的文案', () => {
+      checkUntranslatedMessages(mode, {
+        outputPath: options.outputPath,
+        lang: options.lang,
+      });
     });
   });
 
@@ -55,13 +66,13 @@ commander
  * 校验资源文件中未使用文案
  */
 commander
-  .command("unused")
-  .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
-  .option("--lang <lang>", "要检查的语言")
-  .description("校验资源文件中未使用文案")
+  .command('unused')
+  .requiredOption('--file <filePath>', '必须指定扫描的文件或文件夹')
+  .option('--lang [lang]', '要检查的语言')
+  .description('校验资源文件中未使用文案')
   .action((options) => {
-    spining("校验资源文件中未使用文案", () => {
-      exportUnusedMessages(options.file, options.lang);
+    spining('校验资源文件中未使用文案', () => {
+      checkUnusedMessages(options.file, options.lang);
     });
   });
 
@@ -69,12 +80,12 @@ commander
  * 校验已使用但未在资源文件定义的文案
  */
 commander
-  .command("undefined")
-  .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
-  .option("--lang <lang>", "要检查的语言")
-  .description("校验已使用但未在资源文件定义的文案")
+  .command('undefined')
+  .requiredOption('--file <filePath>', '必须指定扫描的文件或文件夹')
+  .option('--lang [lang]', '要检查的语言')
+  .description('校验已使用但未在资源文件定义的文案')
   .action((options) => {
-    spining("校验已使用但未在资源文件定义的文案", () => {
+    spining('校验已使用但未在资源文件定义的文案', () => {
       checkUndefinedMessages(options.file, options.lang);
     });
   });
@@ -83,15 +94,19 @@ commander
  * 检查文件中的中文文案
  */
 commander
-  .command("zh [mode]")
-  .requiredOption("--file <filePath>", "必须指定扫描的文件或文件夹")
-  .option("--output-path <outputPath>", "输出目录")
-  .description("检查文件中的中文文案")
-  .action((mode = "terminal", options) => {
-    spining("检查文件中的中文文案", () => {
+  .command('zh [mode]')
+  .requiredOption('--file <filePath>', '必须指定扫描的文件或文件夹')
+  .option('--output-path [outputPath]', '输出目录', 'ftintl-zh-lang')
+  .option('--filename [filename]', '输出文件名')
+  .option('--pure', '简洁版文件', false)
+  .description('检查文件中的中文文案')
+  .action((mode = 'terminal', options) => {
+    spining('检查文件中的中文文案', () => {
       checkChineseText(mode, {
         filePath: options.file,
         outputPath: options.outputPath,
+        filename: options.filename,
+        pure: options.pure,
       });
     });
   });

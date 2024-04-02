@@ -1,27 +1,29 @@
-import path from "path";
-import { FTINTL_CONFIG_FILENAME, DEFAULT_CLI_CONFIG_FILE } from "./constants";
-import { log, prettierFile } from "./view";
-import { getCLIConfig, createCLIConfigFile } from "./config";
+import path from 'path';
+import {
+  FTINTL_CONFIG_FILENAME,
+  DEFAULT_FAST_INTL_CONFIG_FILE,
+  ROOT_DIR,
+} from './constants';
+import { prettierFile } from './view';
+import { createFastIntlConfigFile } from './config';
 
-export function initCLI() {
-  const CLIConfig = getCLIConfig();
-
-  if (!CLIConfig) {
-    const config = JSON.stringify(DEFAULT_CLI_CONFIG_FILE, null, 2);
-
-    createCLIConfigFile(
-      path.resolve(process.cwd(), `${FTINTL_CONFIG_FILENAME}.js`),
-      prettierFile(`export default ${config}`, {
-        parser: "babel",
-        trailingComma: "all",
-        singleQuote: true,
-      })
-    );
-
-    return;
-  }
-
-  log.error("初始化失败，ftintl相关吧配置已存在");
+interface IInitOptions {
+  fileType: 'ts' | 'js';
 }
 
+export function initFastIntl(options: IInitOptions) {
+  const { fileType } = options;
+  const config = DEFAULT_FAST_INTL_CONFIG_FILE[fileType];
+
+  createFastIntlConfigFile(
+    path.resolve(ROOT_DIR, `${FTINTL_CONFIG_FILENAME}.${fileType}`),
+    prettierFile(`export default ${config}`, {
+      parser: 'babel',
+      trailingComma: 'all',
+      singleQuote: true,
+    }),
+  );
+}
+
+// TODO: 待实现
 export function initLangs() {}
