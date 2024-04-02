@@ -32,7 +32,7 @@ export default {
 ```sh
 # 导出资源文件中未翻译的文案
 # mode - 输出校验文案的方式，terminal、json，默认：terminal
-# output-path - 指定文件导出目录
+# output-path - 指定文件导出目录（mode为json时有效）
 # lang - 指定检查语言
 ftintl untranslated terminal --output-path=[path] --lang=[lang]
 ```
@@ -59,9 +59,11 @@ ftintl undefined --file=<path> --lang=[lang]
 
 ```sh
 # 检查文件中的中文文案
-# mode - 输出校验文案的方式，terminal、json，默认：terminal
+# mode - 输出匹配到文案的方式，terminal、json，默认：terminal
 # file - 指定要校验的文件或文件夹
-# output-path - 以 json 模式输出校验文案的 path
+# output-path - 输出目录（mode为json时有效）
+# filename - 输出文件名（mode为json时有效）
+# pure - 输出简洁版的json文件（mode为json时有效）
 ftintl zh terminal --file=<path>
 ```
 
