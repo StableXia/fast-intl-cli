@@ -2,6 +2,7 @@
 
 import commander from 'commander';
 import inquirer from 'inquirer';
+
 import packageJson from '../package.json';
 import { initFastIntl, initLangs } from './init';
 import { checkUntranslatedMessages } from './checkUntranslated';
